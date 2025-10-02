@@ -1,0 +1,27 @@
+{
+  "name": "chat_application",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codephoenix86/chat.git"
+  },
+  "keywords": [],
+  "author": "naresh lohar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codephoenix86/chat/issues"
+  },
+  "homepage": "https://github.com/codephoenix86/chat#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
