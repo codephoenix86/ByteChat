@@ -9,16 +9,17 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-  constructor(errors) {
-    super('Validation Error', 400)
+  constructor(message, errors = undefined) {
+    super(message, 400)
     this.name = 'ValidationError'
     this.errors = errors
   }
 }
 
 class AuthError extends AppError {
-  constructor() {
-    super('Invalid Credentials', 401)
+  constructor(message) {
+    super(message, 401)
+    this.name = 'AuthenticationError'
   }
 }
 

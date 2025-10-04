@@ -1,17 +1,15 @@
+const { AuthError } = require('../utils/errors')
 module.exports = (err, req, res, next) => {
-  const { message, errors, timestamp } = err
-  const status = err.status || 500
+  console.log(err.name)
+  const { message, timestamp, status, errors } = err
+  console.log(message)
   if (err.operational)
-    res
-      .status(status)
-      .json({ success: false, message, status, errors, timestamp })
+    res.status(status).json({ success: false, message, status, errors, timestamp })
   else
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: 'Internal Server Error',
-        status: 500,
-        timestamp,
-      })
+    res.status(500).json({
+      success: false,
+      message: 'internal server error',
+      status: 500,
+      timestamp: new Date().toISOString(),
+    })
 }

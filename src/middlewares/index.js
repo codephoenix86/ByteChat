@@ -1,2 +1,3 @@
 exports.validation = require('./validation')
 exports.errorHandler = require('./error')
+exports.authentication = require('./authentication')
