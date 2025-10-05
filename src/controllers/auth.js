@@ -1,35 +1,38 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-
 const { User, RefreshToken } = require('../models')
-const { AuthError } = require('../utils/errors')
+const { AuthError, ValidationError } = require('../utils/errors')
+const generateTokens = require('../utils/generateTokens')
+const validateCredentials = require('../utils/validateCredentials')
 const ApiResponse = require('../utils/response')
 const {
   jwt: { access, refresh },
 } = require('../config/env')
 
 exports.signup = async (req, res, next) => {
-  const { username, password } = req.body
-  const user = await User.create({ username, password })
-  res.status(201).json(new ApiResponse('user created successfully', { user }, 201))
+  const { username, password, email, avatar, bio } = req.body
+  try {
+    const user = await User.create({ username, password, email, avatar, bio })
+    res
+      .status(201)
+      .json(new ApiResponse('user created successfully', { email, username, avatar }, 201))
+  } catch (err) {
+    if (err.code === 11000) {
+      if (err.keyValue.hasOwnProperty('email'))
+        throw new ValidationError('email already exists', undefined, 409)
+      if (err.keyValue.hasOwnProperty('username'))
+        throw new ValidationError('username already taken', undefined, 409)
+    }
+    throw new ValidationError('failed registration', undefined, 500)
+  }
 }
 exports.login = async (req, res, next) => {
-  const { username, password } = req.body
-  const user = await User.findOne({ username }).select('+password')
-  if (!user) throw new AuthError('invalid credentials')
-  const match = await bcrypt.compare(password, user.password)
-  if (!match) throw new AuthError('invalid credentials')
+  const { email, password } = req.body
+  const { username, _id: id, avatar } = await validateCredentials({ email, password })
   console.log(access)
-  const accessToken = jwt.sign({ id: user._id, username }, access.secret, {
-    expiresIn: access.exp,
-  })
-  const refreshToken = jwt.sign({ id: user._id, username }, refresh.secret, {
-    expiresIn: refresh.exp,
-  })
-  await RefreshToken.create({ user: user._id, refreshToken })
+  const [accessToken, refreshToken] = generateTokens({ id, username }, access, refresh)
+  await RefreshToken.create({ user: id, refreshToken })
   res.status(200).json(
     new ApiResponse('user logged in successfully', {
-      user,
+      user: { id, username, email, avatar },
       accessToken,
       refreshToken,
     })
@@ -48,15 +51,10 @@ exports.refreshToken = async (req, res, next) => {
   const { refreshToken } = req.body
   const { id, username } = req.user
   const token = await RefreshToken.findOne({ refreshToken, user: id })
-  if (!token) throw new AuthError('invalid refresh token')
-
-  const newAccessToken = jwt.sign({ id, username }, access.secret, {
-    expiresIn: access.exp,
-  })
-  const newRefreshToken = jwt.sign({ id, username }, refresh.secret, {
-    expiresIn: refresh.exp,
-  })
-  await RefreshToken.updateOne({ refreshToken, user: id }, { refreshToken: newRefreshToken })
+  if (!token) throw new AuthError('invalid token')
+  await token.deleteOne()
+  const [newAccessToken, newRefreshToken] = generateTokens({ id, username }, access, refresh)
+  await RefreshToken.create({ user: id, refreshToken: newRefreshToken })
   res.status(200).json(
     new ApiResponse('token generated successfully', {
       accessToken: newAccessToken,

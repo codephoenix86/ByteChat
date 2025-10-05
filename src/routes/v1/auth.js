@@ -7,7 +7,11 @@ const { authControllers } = require('../../controllers')
 const asyncHandler = require('../../utils/asyncHandler')
 
 router.post('/signup', asyncHandler(validation.signup), asyncHandler(authControllers.signup))
-router.post('/login', asyncHandler(validation.login), asyncHandler(authControllers.login))
+router.post(
+  '/login',
+  asyncHandler(validation.fields('email', 'password')),
+  asyncHandler(authControllers.login)
+)
 router.post(
   '/logout',
   asyncHandler(validation.fields('refreshToken')),

@@ -9,8 +9,8 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-  constructor(message, errors = undefined) {
-    super(message, 400)
+  constructor(message,errors = undefined, status = 400) {
+    super(message, status)
     this.name = 'ValidationError'
     this.errors = errors
   }

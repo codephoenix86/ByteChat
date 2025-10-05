@@ -17,14 +17,30 @@ exports.fields =
 
 exports.signup = async (req, res, next) => {
   const rules = [
-    body('username').exists().withMessage('username is required'),
-    body('password').exists().withMessage('password is required'),
+    body('email')
+      .exists()
+      .withMessage('email is required')
+      .bail()
+      .isEmail()
+      .withMessage('invalid email address'),
+    body('username')
+      .exists()
+      .withMessage('username is required')
+      .bail()
+      .isLength({ min: 3, max: 20 })
+      .withMessage('username must be 3-20 characters long'),
+    body('password')
+      .exists()
+      .withMessage('password is required')
+      .bail()
+      .isLength({ min: 8 })
+      .withMessage('password must be at least 8 characters long'),
   ]
   await Promise.all(rules.map(rule => rule.run(req)))
   const errors = validationResult(req)
   if (!errors.isEmpty())
     throw new ValidationError(
-      'missing required fields',
+      'invalid request body',
       errors.array().map(err => ({ message: err.msg, field: err.path }))
     )
   next()

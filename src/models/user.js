@@ -3,8 +3,14 @@ const bcrypt = require('bcrypt')
 
 const schema = new mongoose.Schema(
   {
-    username: { type: String, required: true },
+    username: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true, select: false },
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    avatar: { type: String, default: '' },
+    bio: { type: String, default: '' },
+    status: { type: String, enum: ['offline', 'online'], default: 'offline' },
+    lastSeen: { type: Date, default: Date.now },
   },
   { timestamps: true }
 )
