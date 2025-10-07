@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator')
 const { ValidationError } = require('../utils/errors')
+const mongoose = require('mongoose')
 
 exports.fields =
   (...arr) =>
@@ -60,20 +61,42 @@ exports.login = async (req, res, next) => {
     )
   next()
 }
-exports.refreshToken = async (req, res, next) => {
-  const rules = [body('refreshToken').exists().withMessage('refresh token is missing')]
+exports.chat = async (req, res, next) => {
+  const rules = [
+    body('participants')
+      .exists()
+      .withMessage('participants is required')
+      .bail()
+      .isArray()
+      .withMessage('participants must be an array of user ids'),
+  ]
   await Promise.all(rules.map(rule => rule.run(req)))
   const errors = validationResult(req)
   if (!errors.isEmpty())
     throw new ValidationError(
-      'missing required fields',
+      'invalid chat format',
       errors.array().map(err => ({ message: err.msg, field: err.path }))
     )
   next()
 }
-exports.token = (req, res, next) => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader?.split(' ')[1]
-  if (!token) throw new ValidationError('authorization token missing or malformed')
+// exports.refreshToken = async (req, res, next) => {
+//   const rules = [body('refreshToken').exists().withMessage('refresh token is missing')]
+//   await Promise.all(rules.map(rule => rule.run(req)))
+//   const errors = validationResult(req)
+//   if (!errors.isEmpty())
+//     throw new ValidationError(
+//       'missing required fields',
+//       errors.array().map(err => ({ message: err.msg, field: err.path }))
+//     )
+//   next()
+// }
+// exports.accessToken = (req, res, next) => {
+//   const authHeader = req.headers['authorization']
+//   const token = authHeader?.split(' ')[1]
+//   if (!token) throw new ValidationError('authorization token missing or malformed')
+//   next()
+// }
+exports.isValidId = entity => (req, res, next, id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) throw new ValidationError(`invalid ${entity} id`)
   next()
 }

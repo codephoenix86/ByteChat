@@ -26,9 +26,8 @@ exports.signup = async (req, res, next) => {
 }
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
-  const { username, _id: id, avatar } = await validateCredentials({ email, password })
-  console.log(access)
-  const [accessToken, refreshToken] = generateTokens({ id, username }, access, refresh)
+  const { username, _id: id, avatar, role } = await validateCredentials({ email, password })
+  const [accessToken, refreshToken] = generateTokens({ id, username, role }, access, refresh)
   await RefreshToken.create({ user: id, refreshToken })
   res.status(200).json(
     new ApiResponse('user logged in successfully', {
@@ -47,13 +46,12 @@ exports.logout = async (req, res, next) => {
   res.status(200).json(new ApiResponse('user logged out successfully'))
 }
 exports.refreshToken = async (req, res, next) => {
-  console.log(req.user)
   const { refreshToken } = req.body
-  const { id, username } = req.user
+  const { id, username, role } = req.user
   const token = await RefreshToken.findOne({ refreshToken, user: id })
   if (!token) throw new AuthError('invalid token')
   await token.deleteOne()
-  const [newAccessToken, newRefreshToken] = generateTokens({ id, username }, access, refresh)
+  const [newAccessToken, newRefreshToken] = generateTokens({ id, username, role }, access, refresh)
   await RefreshToken.create({ user: id, refreshToken: newRefreshToken })
   res.status(200).json(
     new ApiResponse('token generated successfully', {

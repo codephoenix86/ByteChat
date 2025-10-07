@@ -9,7 +9,7 @@ class AppError extends Error {
 }
 
 class ValidationError extends AppError {
-  constructor(message,errors = undefined, status = 400) {
+  constructor(message, errors = undefined, status = 400) {
     super(message, status)
     this.name = 'ValidationError'
     this.errors = errors
@@ -23,8 +23,24 @@ class AuthError extends AppError {
   }
 }
 
+class NotFoundError extends AppError {
+  constructor(message, status = 404) {
+    super(message, status)
+    this.name = 'NotFoundError'
+  }
+}
+
+class AuthorizationError extends AppError {
+  constructor(message, status = 403) {
+    super(message, status)
+    this.name = 'AuthorizationError'
+  }
+}
+
 module.exports = {
   AppError,
   ValidationError,
   AuthError,
+  NotFoundError,
+  AuthorizationError,
 }

@@ -1,5 +1,4 @@
 const express = require('express')
-const { body } = require('express-validator')
 const router = express.Router()
 
 const { validation, authentication } = require('../../middlewares')
@@ -18,15 +17,10 @@ router.post(
   asyncHandler(authentication.refreshToken),
   asyncHandler(authControllers.logout)
 )
-router.post(
-  '/test',
-  asyncHandler(validation.token),
-  asyncHandler(authentication.accessToken),
-  (req, res) => {
-    console.log(req.user)
-    res.json(req.user)
-  }
-)
+router.post('/test', asyncHandler(authentication.accessToken(true)), (req, res) => {
+  console.log(req.user)
+  res.status(200).json(req.user)
+})
 router.post(
   '/refresh-token',
   asyncHandler(validation.fields('refreshToken')),
