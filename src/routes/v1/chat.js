@@ -7,17 +7,20 @@ const messageRouter = require('./message')
 
 router.param('chatId', validation.isValidId('chat'))
 
-router.get(
-  '/',
-  asyncHandler(authentication.accessToken(true)),
-  asyncHandler(chatControllers.getChats)
-)
+router.use(asyncHandler(authentication.accessToken(true)))
+
+router.get('/', asyncHandler(chatControllers.getChats))
 router.post(
   '/',
   asyncHandler(validation.chat),
-  asyncHandler(authentication.accessToken(true)),
   asyncHandler(chatControllers.createChat)
 )
 router.use('/:chatId/messages', messageRouter)
-
+router.post('/:chatId/join', asyncHandler(chatControllers.joinGroup))
+router.delete('/:chatId/leave', asyncHandler(chatControllers.leaveGroup))
+router.patch(
+  '/:chatId/admin',
+  asyncHandler(validation.fields('newAdmin')),
+  asyncHandler(chatControllers.makeAdmin)
+)
 module.exports = router

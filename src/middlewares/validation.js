@@ -106,6 +106,22 @@ exports.login = async (req, res, next) => {
 }
 exports.chat = async (req, res, next) => {
   const rules = [
+    body().custom(body => {
+      if (body.type === 'group' && !body.groupName)
+        throw new ValidationError('group name is required')
+      return true
+    }),
+    body('type')
+      .exists()
+      .withMessage('type of chat is required')
+      .bail()
+      .custom(value => {
+        if (value !== 'private' && value !== 'group')
+          throw new ValidationError(
+            'type of chat must be either group or private'
+          )
+        return true
+      }),
     body('participants')
       .exists()
       .withMessage('participants is required')
@@ -113,10 +129,20 @@ exports.chat = async (req, res, next) => {
       .isArray()
       .withMessage('participants must be an array of user ids')
       .bail()
-      .custom(value => {
+      .custom((value, { req }) => {
+        const type = req.body.type
         const ids = value.map(String)
-        const uniqueIds = new Set(ids)
-        if (ids.length !== uniqueIds.size)
+        const participants = [req.user.id, ...ids]
+        const uniqueIds = new Set(participants)
+        if (type === 'private' && uniqueIds.size !== 2)
+          throw new ValidationError(
+            'private chat must have exactly 2 unique participants'
+          )
+        if (type === 'group' && uniqueIds.size < 2)
+          throw new ValidationError(
+            'group chat must have at least 2 unique participants'
+          )
+        if (participants.length !== uniqueIds.size)
           throw new ValidationError('there must not be duplicate userIds')
         return true
       })

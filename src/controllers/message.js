@@ -10,11 +10,16 @@ exports.sendMessage = async (req, res, next) => {
     sender: req.user.id,
     chat: req.params.chatId,
   })
+  const io = socketSetup.get()
+  io.to(req.params.chatId).emit('message:new', {
+    content,
+    sender: req.user.id,
+    chatId: req.params.chatId,
+    id: message._id,
+  })
   res
     .status(201)
     .json(new ApiResponse('message sent successfully', { message }))
-  const io = socketSetup.get()
-  io.to(req.params.chatId).emit('message', { content, sender: req.user.id })
 }
 exports.getMessages = async (req, res, next) => {
   const messages = await await Message.find({ chat: req.params.chatId })
