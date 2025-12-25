@@ -1,3 +1,39 @@
+# Dependencies
 node_modules/
-*.env
-*.prettierrc
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Uploads
+uploads/public/avatars/*
+!uploads/public/avatars/.gitkeep
+uploads/private/*
+!uploads/private/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Build
+dist/
+build/
+
+# Prettier
+.prettierrc

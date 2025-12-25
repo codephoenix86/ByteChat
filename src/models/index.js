@@ -1,4 +1,4 @@
-exports.User = require('./user')
-exports.RefreshToken = require('./refreshtoken')
-exports.Message = require('./message')
-exports.Chat = require('./chat')
+exports.User = require('./user.model')
+exports.RefreshToken = require('./refreshToken.model')
+exports.Message = require('./message.model')
+exports.Chat = require('./chat.model')
