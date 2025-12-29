@@ -21,7 +21,7 @@ router
   .route('/me/avatar')
   .put(
     auth.accessToken,
-    asyncHandler(upload.single('avatar')),
+    upload.single('avatar'),
     asyncHandler(userControllers.uploadAvatar)
   )
   .delete(auth.accessToken, asyncHandler(userControllers.deleteAvatar))

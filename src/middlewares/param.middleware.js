@@ -6,6 +6,11 @@ const mongoose = require('mongoose')
  * @param {String} name - Parameter name for error message
  */
 exports.validateId = name => (req, res, next, id) => {
+  // Skip validation for special keywords like 'me'
+  if (id === 'me') {
+    return next()
+  }
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new errors.ValidationError(`Invalid ${name} ID`)
   }

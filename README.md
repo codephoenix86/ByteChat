@@ -32,7 +32,7 @@ A production-ready real-time chat application built with Node.js, Express, Mongo
 
 ```bash
 # Clone repository
-git clone https://github.com/codephoenix86/chat.git
+git clone https://github.com/codephoenix86/FastChat.git
 cd chat
 
 # Install dependencies
@@ -232,4 +232,4 @@ Naresh Lohar
 
 ## Repository
 
-https://github.com/codephoenix86/chat
+https://github.com/codephoenix86/FastChat

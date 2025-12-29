@@ -1,5 +1,5 @@
 const { userService } = require('../services')
-const { ApiResponse, pagination } = require('../utils')
+const { ApiResponse, pagination, errors } = require('../utils')
 const { HTTP_STATUS } = require('../constants')
 
 /**
@@ -66,6 +66,11 @@ exports.deleteCurrentUser = async (req, res) => {
 }
 
 exports.uploadAvatar = async (req, res) => {
+  // Check if file was uploaded
+  if (!req.file) {
+    throw new errors.ValidationError('Please upload an image file')
+  }
+
   const user = await userService.updateAvatar(req.user.id, req.file.filename)
 
   res.status(HTTP_STATUS.OK).json(new ApiResponse('Avatar uploaded successfully', { user }))

@@ -41,22 +41,25 @@ exports.getMessage = async (req, res) => {
 
 exports.updateMessage = async (req, res) => {
   const { content } = req.body
+  const { chatId } = req.params
 
   const message = await messageService.updateMessage(req.params.messageId, req.user.id, content)
 
   // Emit real-time update
   const io = socketServer.get()
-  io.to(message.chat.toString()).emit(SOCKET_EVENTS.MESSAGE_UPDATED, message)
+  io.to(chatId).emit(SOCKET_EVENTS.MESSAGE_UPDATED, message)
 
   res.status(HTTP_STATUS.OK).json(new ApiResponse('Message updated successfully', { message }))
 }
 
 exports.deleteMessage = async (req, res) => {
-  await messageService.deleteMessage(req.params.messageId, req.user.id)
+  const { chatId, messageId } = req.params
+
+  await messageService.deleteMessage(messageId, req.user.id)
 
   // Emit real-time deletion
   const io = socketServer.get()
-  io.to(req.body.chatId).emit(SOCKET_EVENTS.MESSAGE_DELETED, { messageId: req.params.messageId })
+  io.to(chatId).emit(SOCKET_EVENTS.MESSAGE_DELETED, { messageId })
 
   res.status(HTTP_STATUS.OK).json(new ApiResponse('Message deleted successfully'))
 }

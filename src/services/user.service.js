@@ -138,16 +138,17 @@ class UserService {
       throw new NotFoundError('User not found')
     }
 
-    // Delete old avatar if exists and new one is being uploaded
-    if (user.avatar && filename !== null) {
+    // Delete old avatar if exists
+    if (user.avatar) {
       try {
         await fs.unlink(path.join('uploads/public/avatars', user.avatar))
-        logger.info('Old avatar deleted', { userId })
+        logger.info('Old avatar deleted from storage', { userId, filename: user.avatar })
       } catch (err) {
-        logger.warn('Failed to delete old avatar', { userId, error: err.message })
+        logger.warn('Failed to delete old avatar file', { userId, error: err.message })
       }
     }
 
+    // Update avatar in database
     const updated = await userRepository.findByIdAndUpdate(userId, { avatar: filename })
 
     logger.info('User avatar updated', { userId, filename })
